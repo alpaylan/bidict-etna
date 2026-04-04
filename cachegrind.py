@@ -32,22 +32,19 @@ Copyright © 2020, Hyphenated Enterprises LLC.
 
 from __future__ import annotations
 
+import subprocess as sp
 import sys
 import typing as t
-from subprocess import DEVNULL
-from subprocess import check_call
-from subprocess import check_output
-from subprocess import run
 from tempfile import NamedTemporaryFile
 
 
 try:
-    check_call(['setarch', '-h'], stdout=DEVNULL, stderr=DEVNULL)
-    check_call(['valgrind', '-h'], stdout=DEVNULL, stderr=DEVNULL)
+    sp.check_call(['setarch', '-h'], stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+    sp.check_call(['valgrind', '-h'], stdout=sp.DEVNULL, stderr=sp.DEVNULL)
 except FileNotFoundError as exc:  # e.g. macOS
     raise SystemExit(f'Command not found: {exc.filename}') from None
 
-ARCH = check_output(['uname', '-m'], text=True).strip()
+ARCH = sp.check_output(['uname', '-m'], text=True).strip()
 DISABLE_ASLR_CMD = ['setarch', ARCH, '-R']
 
 
@@ -58,8 +55,9 @@ def run_with_cachegrind(args_list: list[str]) -> dict[str, int]:
 
     For now we just ignore program output, and in general this is not robust.
     """
-    temp_file = NamedTemporaryFile('r+')
-    run([
+    temp_file = NamedTemporaryFile('r+')  # noqa: SIM115
+    # Don't fail if the program fails (to support e.g. `pytest --benchmark-compare-fail=...`)
+    sp.call([
         *DISABLE_ASLR_CMD,
         'valgrind',
         '--tool=cachegrind',
@@ -71,7 +69,7 @@ def run_with_cachegrind(args_list: list[str]) -> dict[str, int]:
         '--LL=8388608,16,64',
         '--cachegrind-out-file=' + temp_file.name,
         *args_list,
-    ])  # Don't fail if the program fails (to support e.g. `pytest --benchmark-compare-fail=...`)
+    ])
     return parse_cachegrind_output(temp_file)
 
 

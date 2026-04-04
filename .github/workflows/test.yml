@@ -33,15 +33,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # https://github.com/actions/python-versions/blob/main/versions-manifest.json
+          # https://github.com/actions/setup-python#basic-usage
           - pyversion: "3.14"
             enable_coverage: true
           - pyversion: "3.13"
           - pyversion: "3.12"
           - pyversion: "3.11"
+            # bidict/_typing.py's `typing`/`typing_extensions` imports branch on python<3.12
             enable_coverage: true
-          - pyversion: "3.10"
-          - pyversion: "pypy-3.10"
+          - pyversion: "pypy-3.11"
     steps:
       - name: check out source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd

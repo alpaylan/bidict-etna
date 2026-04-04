@@ -18,7 +18,7 @@
           python313
           python312
           python311
-          pypy310
+          pypy3
           uv  # Bootstrap version used to install a possibly-newer version when 'uv sync' is run (via uv.lock)
         ];
         shellHook = ''

@@ -135,9 +135,22 @@ class _OrderedBidictItemsView(ItemsView[KT, VT]):
 # for __iter__ and __reversed__ since they are order-sensitive.) See also: https://bugs.python.org/issue46713
 _OView: t.TypeAlias = type[_OrderedBidictKeysView[KT]] | type[_OrderedBidictItemsView[KT, t.Any]]
 _setmethodnames: Iterable[str] = (
-    '__lt__ __le__ __gt__ __ge__ __eq__ __ne__ __sub__ __rsub__ '
-    '__or__ __ror__ __xor__ __rxor__ __and__ __rand__ isdisjoint'
-).split()
+    '__lt__',
+    '__le__',
+    '__gt__',
+    '__ge__',
+    '__eq__',
+    '__ne__',
+    '__sub__',
+    '__rsub__',
+    '__or__',
+    '__ror__',
+    '__xor__',
+    '__rxor__',
+    '__and__',
+    '__rand__',
+    'isdisjoint',
+)
 
 
 def _override_set_methods_to_use_backing_dict(cls: _OView[KT], viewname: str) -> None:

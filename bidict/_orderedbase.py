@@ -30,7 +30,6 @@ from ._typing import OKT
 from ._typing import OVT
 from ._typing import VT
 from ._typing import MapOrItems
-from ._typing import Self
 from ._typing import override
 
 
@@ -51,10 +50,10 @@ class WeakAttr(t.Generic[AT]):
         setattr(instance, self.slot, weakref(value))
 
     @t.overload
-    def __get__(self, instance: None, owner: type) -> Self: ...
+    def __get__(self, instance: None, owner: type) -> t.Self: ...
     @t.overload
     def __get__(self, instance: object, owner: type) -> AT: ...
-    def __get__(self, instance: object | None, owner: type) -> Self | AT:
+    def __get__(self, instance: object | None, owner: type) -> t.Self | AT:
         if instance is None:
             return self
         return t.cast(AT, getattr(instance, self.slot)())

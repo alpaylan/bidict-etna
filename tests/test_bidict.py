@@ -26,6 +26,7 @@ from functools import partial
 from itertools import product
 from itertools import starmap
 from random import Random
+from typing import assert_type
 from unittest.mock import ANY
 
 import pytest
@@ -58,7 +59,6 @@ from hypothesis.strategies import booleans
 from hypothesis.strategies import randoms
 from hypothesis.strategies import sampled_from
 from typing_extensions import TypeIs
-from typing_extensions import assert_type
 
 from bidict import BidirectionalMapping
 from bidict import DuplicationError
@@ -198,7 +198,7 @@ class BidictStateMachine(RuleBasedStateMachine):
         )
 
     @rule(other=items121)
-    def __ior__(self, other: Mapping[int, int]) -> None:
+    def __ior__(self, other: Mapping[int, int]) -> None:  # noqa: PYI034
         assert_calls_match(
             partial(self.bi.__ior__, other),
             partial(self.oracle.__ior__, other),
@@ -568,7 +568,7 @@ def assert_calls_match(call1: Callable[..., t.Any], call2: Callable[..., t.Any])
     for call in results:
         try:
             results[call] = call()
-        except Exception as exc:  # noqa: BLE001, PERF203
+        except Exception as exc:  # noqa: BLE001
             results[call] = exc.__class__
     assert results[call1] == results[call2]
 

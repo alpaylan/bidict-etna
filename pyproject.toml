@@ -6,9 +6,10 @@ authors = [{ name = "Joshua Bronson", email = "jabronson@gmail.com" }]
 license = "MPL-2.0"
 license-files = ["LICENSE"]
 dependencies = [
+  # bidict/_typing.py's `typing`/`typing_extensions` imports branch on python<3.12
   "typing_extensions>=4.0; python_version<'3.12'",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 readme = "README.rst"
 keywords = [
   "bidict",
@@ -113,7 +114,13 @@ extend-select = [
   "W",
   "YTT",
 ]
-ignore = ["RUF067"]  # Allow __init__.py to set __module__ on re-exported classes
+ignore = [
+  "PLC0414", # Allow explicit re-exports (import X as X)
+  "PYI025",  # Prefer `Set` over `AbstractSet` for readability
+  "RUF067",  # Allow __init__.py to set __module__ on re-exported classes
+  "SIM118",  # https://github.com/astral-sh/ruff/issues/4481
+]
+typing-modules = ["bidict._typing"]
 
 [tool.ruff.lint.isort]
 force-single-line = true
