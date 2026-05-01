@@ -19,3 +19,25 @@ coverage.xml
 dist
 htmlcov
 pip-wheel-metadata
+
+# ETNA workload runtime artefacts
+etna/.venv/
+etna/.hypothesis/
+etna/.pytest_cache/
+etna/etna_runner.egg-info/
+etna/etna_runner/__pycache__/
+etna/tests/__pycache__/
+.hegel/
+progress.jsonl
+etna.log
+/.hegel
+/etna.log
+/progress.jsonl
+/.marauders
+/uv.lock
+/etna/.venv
+/etna/etna.log
+/etna/.hypothesis
+__pycache__/
+*.egg-info/
+.pytest_cache/

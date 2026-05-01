@@ -1,0 +1,13 @@
+diff --git a/bidict/_orderedbidict.py b/bidict/_orderedbidict.py
+index f82ff3a..afc4f00 100644
+--- a/bidict/_orderedbidict.py
++++ b/bidict/_orderedbidict.py
+@@ -67,7 +67,7 @@ class OrderedBidict(OrderedBidictBase[KT, VT], MutableBidict[KT, VT]):
+         """
+         if not self:
+             raise KeyError('OrderedBidict is empty')
+-        node = getattr(self._sntl, 'prv' if last else 'nxt')
++        node = getattr(self._sntl, 'prv' if not last else 'nxt')
+         korv = self._node_by_korv.inverse[node]
+         if self._bykey:
+             return korv, self._pop(korv)

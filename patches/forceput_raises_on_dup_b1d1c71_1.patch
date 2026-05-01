@@ -1,0 +1,13 @@
+diff --git a/bidict/_bidict.py b/bidict/_bidict.py
+index 95050d3..1e09a2a 100644
+--- a/bidict/_bidict.py
++++ b/bidict/_bidict.py
+@@ -115,7 +115,7 @@ class MutableBidict(BidictBase[KT, VT], MutableBidirectionalMapping[KT, VT]):
+         Replace any existing mappings containing key *key* or value *val*
+         as necessary to preserve uniqueness.
+         """
+-        self.put(key, val, on_dup=ON_DUP_DROP_OLD)
++        self.put(key, val, on_dup=ON_DUP_RAISE)
+ 
+     @override
+     def clear(self) -> None:

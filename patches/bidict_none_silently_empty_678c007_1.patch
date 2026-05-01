@@ -1,0 +1,13 @@
+diff --git a/bidict/_base.py b/bidict/_base.py
+index 2de3cc5..0145a26 100644
+--- a/bidict/_base.py
++++ b/bidict/_base.py
+@@ -435,8 +435,6 @@ class BidictBase(BidirectionalMapping[KT, VT]):
+     ) -> None:
+         """Update with the items from *arg* and *kw*, maybe failing and rolling back as per *on_dup* and *rollback*."""
+         # Note: We must process input in a single pass, since arg may be a generator.
+-        if not isinstance(arg, (Iterable, Maplike)):
+-            raise TypeError(f"'{arg.__class__.__name__}' object is not iterable")
+         if not arg and not kw:
+             return
+         if on_dup is None:

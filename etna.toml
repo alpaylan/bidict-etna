@@ -1,0 +1,187 @@
+name = "bidict"
+description = "The bidirectional mapping library for Python — bug variants hand-crafted against modern HEAD, drawing from upstream history (jab/bidict)."
+language = "python"
+crate = "bidict"
+base_commit = "3d8812a1e3669e7083052cf356b00da1c0816a9b"
+
+# ---------------------------------------------------------------------------
+# Variant: bidict_none_silently_empty_678c007_1
+# ---------------------------------------------------------------------------
+[[tasks]]
+mutations = ["bidict_none_silently_empty_678c007_1"]
+
+[tasks.source]
+repo = "https://github.com/jab/bidict"
+commits = ["678c007d39656fc2305d05fc2ee3c87c5833719e"]
+commit_subjects = ["bugfix + rewrite tests + misc. improvements (#295) — Fix bidict(None) bug (should raise TypeError)"]
+prs = [295]
+origin = "internal"
+summary = "``bidict(None)`` should raise TypeError, but pre-fix code in ``BidictBase._update`` skipped the type check and short-circuited on ``not arg`` first, so ``bidict(None)`` silently produced an empty bidict."
+
+[tasks.injection]
+kind = "patch"
+files = ["bidict/_base.py"]
+locations = [{ file = "bidict/_base.py", line = 438, symbol = "BidictBase._update" }]
+patch = "patches/bidict_none_silently_empty_678c007_1.patch"
+
+[tasks.bug]
+short_name = "bidict_none_silently_empty"
+invariant = "Constructing ``bidict(arg)`` with a non-iterable, non-Maplike ``arg`` (e.g. ``None``) raises TypeError; it must not return an empty bidict."
+how_triggered = "The mutation removes the ``isinstance(arg, (Iterable, Maplike))`` early-raise from ``_update``, letting the ``if not arg and not kw: return`` short-circuit fire on ``None`` and silently produce an empty bidict."
+
+[[tasks.tasks]]
+property = "BidictNoneRejected"
+witnesses = [
+  { test_fn = "witness_bidict_none_rejected_case_basic", note = "bidict(None) must raise TypeError" },
+]
+
+# ---------------------------------------------------------------------------
+# Variant: ior_returns_new_bidict_6faf1ef_1
+# ---------------------------------------------------------------------------
+[[tasks]]
+mutations = ["ior_returns_new_bidict_6faf1ef_1"]
+
+[tasks.source]
+repo = "https://github.com/jab/bidict"
+commits = ["6faf1ef03f8fb2c72f289149edf598e5dda0bde1"]
+commit_subjects = ["Fix updating orderedbidict.inv"]
+origin = "internal"
+summary = "``b |= other`` must mutate ``b`` in place and return ``b`` itself, mirroring ``dict.__ior__``. A buggy ``__ior__`` that delegates to ``__or__`` rebinds ``b`` to a new bidict — any aliased reference to ``b`` is left pointing at the pre-update contents."
+
+[tasks.injection]
+kind = "patch"
+files = ["bidict/_bidict.py"]
+locations = [{ file = "bidict/_bidict.py", line = 176, symbol = "MutableBidict.__ior__" }]
+patch = "patches/ior_returns_new_bidict_6faf1ef_1.patch"
+
+[tasks.bug]
+short_name = "ior_returns_new_bidict"
+invariant = "After ``b |= other``, ``b`` is the same object as before (``id(b)`` unchanged) and contains the union; any aliased reference observes the new contents."
+how_triggered = "The mutation replaces ``self.update(other); return self`` with ``return self.__or__(other)``, returning a fresh bidict instead of mutating self. Aliased references to ``b`` continue to see the original contents."
+
+[[tasks.tasks]]
+property = "IorPreservesIdentity"
+witnesses = [
+  { test_fn = "witness_ior_preserves_identity_case_basic", note = "alias-after-|= must reflect the new items" },
+]
+
+# ---------------------------------------------------------------------------
+# Variant: or_mutates_self_2074f4b_1
+# ---------------------------------------------------------------------------
+[[tasks]]
+mutations = ["or_mutates_self_2074f4b_1"]
+
+[tasks.source]
+repo = "https://github.com/jab/bidict"
+commits = ["2074f4b0d88c09cf02335231faf341930afcf400"]
+commit_subjects = ["implement stricter 1-to-1 checking + many fixes + improvements"]
+origin = "internal"
+summary = "``a | b`` must not mutate ``a``. A buggy ``__or__`` that updates ``self`` in place (skipping the ``new = self.copy()`` step) clobbers ``a`` with every union expression."
+
+[tasks.injection]
+kind = "patch"
+files = ["bidict/_base.py"]
+locations = [{ file = "bidict/_base.py", line = 513, symbol = "BidictBase.__or__" }]
+patch = "patches/or_mutates_self_2074f4b_1.patch"
+
+[tasks.bug]
+short_name = "or_mutates_self"
+invariant = "Computing ``a | b`` returns a fresh bidict and leaves ``a`` unchanged: ``dict(a)`` before and after the ``|`` are equal."
+how_triggered = "The mutation removes the ``self.copy()`` call from ``__or__``, so the union is applied to ``self`` directly. The expression returns the now-mutated ``self`` instead of a separate result."
+
+[[tasks.tasks]]
+property = "OrDoesNotMutateSelf"
+witnesses = [
+  { test_fn = "witness_or_does_not_mutate_self_case_basic", note = "a | b must leave a unchanged" },
+]
+
+# ---------------------------------------------------------------------------
+# Variant: popitem_orphans_inverse_b1d1c70_1
+# ---------------------------------------------------------------------------
+[[tasks]]
+mutations = ["popitem_orphans_inverse_b1d1c70_1"]
+
+[tasks.source]
+repo = "https://github.com/jab/bidict"
+commits = ["3d8812a1e3669e7083052cf356b00da1c0816a9b"]
+commit_subjects = ["hand-crafted: popitem must remove from the inverse mapping"]
+origin = "internal"
+summary = "``b.popitem()`` must remove the popped item from both ``_fwdm`` and ``_invm`` so the bidict's two backing dicts stay in sync. A buggy implementation that updates only ``_fwdm`` leaves the popped value as a stale reverse-edge in ``b.inv``."
+
+[tasks.injection]
+kind = "patch"
+files = ["bidict/_bidict.py"]
+locations = [{ file = "bidict/_bidict.py", line = 153, symbol = "MutableBidict.popitem" }]
+patch = "patches/popitem_orphans_inverse_b1d1c70_1.patch"
+
+[tasks.bug]
+short_name = "popitem_orphans_inverse"
+invariant = "After ``b.popitem()`` returns ``(k, v)``, ``k`` is no longer a key of ``b``, ``v`` is no longer a key of ``b.inv``, and ``len(b) == len(b.inv)``."
+how_triggered = "The mutation drops the ``del self._invm[val]`` line from ``popitem``. ``_fwdm`` shrinks by one, ``_invm`` does not, and the inverse mapping retains a stale reverse-edge for the popped value."
+
+[[tasks.tasks]]
+property = "PopitemKeepsInverseConsistent"
+witnesses = [
+  { test_fn = "witness_popitem_keeps_inverse_consistent_case_basic", note = "popped value must vanish from inverse" },
+]
+
+# ---------------------------------------------------------------------------
+# Variant: forceput_raises_on_dup_b1d1c71_1
+# ---------------------------------------------------------------------------
+[[tasks]]
+mutations = ["forceput_raises_on_dup_b1d1c71_1"]
+
+[tasks.source]
+repo = "https://github.com/jab/bidict"
+commits = ["3d8812a1e3669e7083052cf356b00da1c0816a9b"]
+commit_subjects = ["hand-crafted: forceput's contract is unconditional override — must drop_old, not raise"]
+origin = "internal"
+summary = "``b.forceput(k, v)`` always overwrites any existing item that duplicates ``k`` or ``v``, by passing ``ON_DUP_DROP_OLD``. A buggy implementation that passes ``ON_DUP_RAISE`` instead turns ``forceput`` into ``put``, raising DuplicationError on the very inputs forceput is supposed to handle."
+
+[tasks.injection]
+kind = "patch"
+files = ["bidict/_bidict.py"]
+locations = [{ file = "bidict/_bidict.py", line = 118, symbol = "MutableBidict.forceput" }]
+patch = "patches/forceput_raises_on_dup_b1d1c71_1.patch"
+
+[tasks.bug]
+short_name = "forceput_raises_on_dup"
+invariant = "``b.forceput(k, v)`` always succeeds without raising; afterwards ``b[k] == v`` and ``b.inv[v] == k``."
+how_triggered = "The mutation flips ``forceput``'s ``on_dup`` argument from ``ON_DUP_DROP_OLD`` to ``ON_DUP_RAISE``, so any duplicate key or duplicate value triggers a DuplicationError instead of being silently overwritten."
+
+[[tasks.tasks]]
+property = "ForceputOverwritesNotRaises"
+witnesses = [
+  { test_fn = "witness_forceput_overwrites_not_raises_case_dup_key", note = "duplicate-key forceput must drop the old mapping" },
+  { test_fn = "witness_forceput_overwrites_not_raises_case_dup_val", note = "duplicate-value forceput must drop the old mapping" },
+]
+
+# ---------------------------------------------------------------------------
+# Variant: ordered_popitem_last_swapped_b1d1c72_1
+# ---------------------------------------------------------------------------
+[[tasks]]
+mutations = ["ordered_popitem_last_swapped_b1d1c72_1"]
+
+[tasks.source]
+repo = "https://github.com/jab/bidict"
+commits = ["3d8812a1e3669e7083052cf356b00da1c0816a9b"]
+commit_subjects = ["hand-crafted: OrderedBidict.popitem(last=False) must return first item"]
+origin = "internal"
+summary = "``OrderedBidict.popitem(last=False)`` must return the first inserted item (LRU-style); ``popitem(last=True)`` returns the most recently inserted item. The mapping is the same as ``collections.OrderedDict.popitem``."
+
+[tasks.injection]
+kind = "patch"
+files = ["bidict/_orderedbidict.py"]
+locations = [{ file = "bidict/_orderedbidict.py", line = 70, symbol = "OrderedBidict.popitem" }]
+patch = "patches/ordered_popitem_last_swapped_b1d1c72_1.patch"
+
+[tasks.bug]
+short_name = "ordered_popitem_last_swapped"
+invariant = "For an ``OrderedBidict`` with at least two items, ``popitem(last=False)`` returns the first inserted item and ``popitem(last=True)`` returns the most recent."
+how_triggered = "The mutation flips the ``'prv' if last else 'nxt'`` ternary inside ``OrderedBidict.popitem`` to ``'prv' if not last else 'nxt'``, so the head/tail selection is inverted."
+
+[[tasks.tasks]]
+property = "OrderedPopitemLastFalseReturnsFirst"
+witnesses = [
+  { test_fn = "witness_ordered_popitem_last_false_returns_first_case_basic", note = "popitem(last=False) must return first; popitem(last=True) must return last" },
+]

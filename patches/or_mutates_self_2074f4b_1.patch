@@ -1,0 +1,16 @@
+diff --git a/bidict/_base.py b/bidict/_base.py
+index 2de3cc5..ffe1bcd 100644
+--- a/bidict/_base.py
++++ b/bidict/_base.py
+@@ -514,9 +514,8 @@ class BidictBase(BidirectionalMapping[KT, VT]):
+         """Return self|other."""
+         if not isinstance(other, Mapping):
+             return NotImplemented
+-        new = self.copy()
+-        new._update(other, rollback=False)
+-        return new
++        self._update(other, rollback=False)
++        return self
+ 
+     def __ror__(self, other: Mapping[KT, VT]) -> t.Self:
+         """Return other|self."""
