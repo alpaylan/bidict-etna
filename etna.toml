@@ -1,6 +1,7 @@
 name = "bidict"
 description = "The bidirectional mapping library for Python — bug variants hand-crafted against modern HEAD, drawing from upstream history (jab/bidict)."
 language = "python"
+strategies = ["hypothesis", "crosshair"]
 crate = "bidict"
 base_commit = "3d8812a1e3669e7083052cf356b00da1c0816a9b"
 
