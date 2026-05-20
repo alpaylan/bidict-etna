@@ -28,14 +28,14 @@ Total mutations: 6
 
 ## Framework Coverage
 
-| Property | proptest | quickcheck | crabcheck | hegel |
-|----------|---------:|-----------:|----------:|------:|
-| `BidictNoneRejected` | ✓ | ✓ | ✓ | ✓ |
-| `ForceputOverwritesNotRaises` | ✓ | ✓ | ✓ | ✓ |
-| `IorPreservesIdentity` | ✓ | ✓ | ✓ | ✓ |
-| `OrDoesNotMutateSelf` | ✓ | ✓ | ✓ | ✓ |
-| `OrderedPopitemLastFalseReturnsFirst` | ✓ | ✓ | ✓ | ✓ |
-| `PopitemKeepsInverseConsistent` | ✓ | ✓ | ✓ | ✓ |
+| Property | hypothesis | crosshair |
+|----------|---------:|--------:|
+| `BidictNoneRejected` | ✓ | ✓ |
+| `ForceputOverwritesNotRaises` | ✓ | ✓ |
+| `IorPreservesIdentity` | ✓ | ✓ |
+| `OrDoesNotMutateSelf` | ✓ | ✓ |
+| `OrderedPopitemLastFalseReturnsFirst` | ✓ | ✓ |
+| `PopitemKeepsInverseConsistent` | ✓ | ✓ |
 
 ## Bug Details
 

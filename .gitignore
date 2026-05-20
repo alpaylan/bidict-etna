@@ -41,3 +41,10 @@ etna.log
 __pycache__/
 *.egg-info/
 .pytest_cache/
+
+# etna runtime artifacts (auto-added)
+/coverage/
+*.profraw
+/profdata/
+/.marauders/
+/.hegel/
